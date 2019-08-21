@@ -4,7 +4,6 @@ declare(strict_types=1);
 namespace Prismic;
 
 use DateTime;
-use DateTimeImmutable;
 use DateTimeInterface;
 use DateTimeZone;
 use Prismic\Document\Fragment\FragmentCollection;
@@ -104,12 +103,12 @@ class Document implements DocumentInterface
         $utc            = new DateTimeZone('UTC');
         $firstPublished = $inst->assertRequiredProperty($data, 'first_publication_date', true);
         if ($firstPublished) {
-            $date                 = DateTimeImmutable::createFromFormat(DateTime::ISO8601, $firstPublished);
+            $date = dateTimeImmutableFromFormat(DateTime::ATOM, $firstPublished);
             $inst->firstPublished = $date->setTimezone($utc);
         }
         $lastPublished = $inst->assertRequiredProperty($data, 'last_publication_date', true);
         if ($lastPublished) {
-            $date                = DateTimeImmutable::createFromFormat(DateTime::ISO8601, $lastPublished);
+            $date = dateTimeImmutableFromFormat(DateTime::ATOM, $lastPublished);
             $inst->lastPublished = $date->setTimezone($utc);
         }
 

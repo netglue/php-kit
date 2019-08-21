@@ -6,8 +6,10 @@ namespace Prismic\Document\Fragment;
 use DateTime;
 use DateTimeImmutable;
 use DateTimeInterface;
+use Prismic\Exception\ExceptionInterface;
 use Throwable;
 use function preg_match;
+use function Prismic\dateTimeImmutableFromFormat;
 
 class Date extends AbstractScalarFragment
 {
@@ -35,8 +37,8 @@ class Date extends AbstractScalarFragment
     {
         $format = $this->hasTimePart ? DateTime::ATOM : '!Y-m-d';
         try {
-            return DateTimeImmutable::createFromFormat($format, (string) $this->value);
-        } catch (Throwable $exception) {
+            return dateTimeImmutableFromFormat($format, (string) $this->value);
+        } catch (ExceptionInterface $exception) {
             return null;
         }
     }
