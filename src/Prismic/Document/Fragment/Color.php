@@ -46,6 +46,6 @@ class Color extends AbstractScalarFragment
         if (! $this->isColor()) {
             return null;
         }
-        return hexdec(substr($this->value, 1));
+        return (int) hexdec(substr($this->value, 1));
     }
 }
