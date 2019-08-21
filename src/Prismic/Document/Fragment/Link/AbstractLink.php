@@ -159,8 +159,9 @@ abstract class AbstractLink implements LinkInterface
             $attributes['target'] = $this->getTarget();
             $attributes['rel'] = 'noopener';
         }
-        if ($this->getLang()) {
-            $attributes['hreflang'] = substr($this->getLang(), 0, 2);
+        $lang = $this->getLang();
+        if ($lang !== null) {
+            $attributes['hreflang'] = substr($lang, 0, 2);
         }
 
         return sprintf(

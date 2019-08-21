@@ -6,13 +6,14 @@ All notable changes to this project will be documented in this file, in reverse 
 
 ### Added
 
-- Nothing
+- Function in Prismic namespace `dateTimeImmutableFromFormat()` that will return a `DateTimeImmutable` or throw an exception.
 
 ### Changed
 
 - The named constructor `ExpiredPreviewTokenException::fromResponse()` will now throw an exception if the given
 response does not indicate that this was indeed the error condition. Previously this returned null. As a library
 exception, this isn't a BC break IMO, as the suitability of the response was always checked anyway.
+- The `Ref::getScheduledDate()` method now returns the date in UTC
 
 ### Deprecated
 

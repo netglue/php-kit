@@ -4,17 +4,22 @@ declare(strict_types=1);
 namespace Prismic\Document\Fragment;
 
 use Prismic\Document\Fragment\Link\AbstractLink;
+use Prismic\Exception\InvalidArgumentException;
+use Prismic\Exception\UnexpectedValueException;
 use Prismic\LinkResolver;
+use stdClass;
 use Zend\Escaper\Escaper;
 use function array_walk;
 use function implode;
 use function is_array;
+use function is_int;
 use function is_scalar;
 use function json_encode;
 use function nl2br;
 use function preg_split;
 use function sprintf;
 use function strpos;
+use const PREG_SPLIT_NO_EMPTY;
 
 trait HtmlHelperTrait
 {
@@ -69,16 +74,26 @@ trait HtmlHelperTrait
 
     private function insertSpans(string $text, array $spans, LinkResolver $linkResolver) : string
     {
-        if (empty($spans)) {
+        if (empty($spans) || empty($text)) {
             return nl2br($this->escapeHtml($text));
         }
 
-        $nodes = preg_split('//u', $text, -1, \PREG_SPLIT_NO_EMPTY);
+        /** @var string[] $nodes */
+        $nodes = preg_split('//u', $text, -1, PREG_SPLIT_NO_EMPTY);
+        if (! $nodes) {
+            return '';
+        }
         array_walk($nodes, function (&$character) {
             $character = $this->escapeHtml($character);
         });
         foreach ($spans as $span) {
-            if (! isset($span->type)) {
+            if (! $span instanceof stdClass) {
+                continue;
+            }
+            if (! isset($span->type, $span->start, $span->end)) {
+                continue;
+            }
+            if (! is_int($span->end) || ! is_int($span->start)) {
                 continue;
             }
             $openTag = $closeTag = null;
@@ -93,12 +108,13 @@ trait HtmlHelperTrait
                 case 'label':
                     // Multiple labels at the same indexes are not possible,
                     // therefore we don't have to combine CSS classes
-                    $openTag  = sprintf('<span%s>', $this->htmlAttributes(['class' => $span->data->label]));
+                    $data = $this->assertSpanData($span);
+                    $openTag  = sprintf('<span%s>', $this->htmlAttributes(['class' => $data->label ?? '']));
                     $closeTag = '</span>';
                     break;
 
                 case 'hyperlink':
-                    $link = AbstractLink::abstractFactory($span->data, $linkResolver);
+                    $link = AbstractLink::abstractFactory($this->assertSpanData($span), $linkResolver);
                     if ($link) {
                         $openTag  = $link->openTag();
                         $closeTag = $link->closeTag();
@@ -112,5 +128,14 @@ trait HtmlHelperTrait
             $nodes[$end] = sprintf('%s%s', $nodes[$end], $closeTag);
         }
         return nl2br(implode('', $nodes));
+    }
+
+    private function assertSpanData(stdClass $span) : stdClass
+    {
+        $data = $span->data ?? null;
+        if (! $data instanceof stdClass) {
+            throw new UnexpectedValueException('Data property of span data structure is an unexpected value');
+        }
+        return $data;
     }
 }

@@ -10,6 +10,13 @@ use Prismic\Document\Fragment\FragmentCollection;
 use Prismic\Document\Fragment\FragmentInterface;
 use Prismic\Document\Fragment\Link\DocumentLink;
 use stdClass;
+use function count;
+use function current;
+use function json_decode;
+use function json_last_error;
+use function json_last_error_msg;
+use function property_exists;
+use function sprintf;
 
 class Document implements DocumentInterface
 {
@@ -78,12 +85,12 @@ class Document implements DocumentInterface
 
     public static function fromJsonString(string $json, Api $api) : DocumentInterface
     {
-        $data = \json_decode($json);
+        $data = json_decode($json, false);
         if (! $data) {
             throw new Exception\InvalidArgumentException(sprintf(
                 'Failed to decode json payload: %s',
-                \json_last_error_msg()
-            ), \json_last_error());
+                json_last_error_msg()
+            ), json_last_error());
         }
         return static::fromJsonObject($data, $api);
     }
@@ -113,7 +120,7 @@ class Document implements DocumentInterface
         }
 
         $altLang                  = $inst->assertRequiredProperty($data, 'alternate_languages', true);
-        $inst->alternateLanguages = $altLang ? $altLang : [];
+        $inst->alternateLanguages = $altLang ?: [];
 
         $data = $inst->assertRequiredProperty($data, 'data', false);
 
@@ -138,7 +145,7 @@ class Document implements DocumentInterface
 
     protected function assertRequiredProperty(stdClass $object, string $property, $nullable = true)
     {
-        if (! \property_exists($object, $property)) {
+        if (! property_exists($object, $property)) {
             throw new Exception\InvalidArgumentException(sprintf(
                 'A required document property was missing from the JSON payload: %s',
                 $property

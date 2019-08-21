@@ -332,6 +332,9 @@ class Api
         }
         ['host' => $previewHost] = parse_url($token);
         ['host' => $apiHost] = parse_url($this->url);
+        if (empty($previewHost) || empty($apiHost)) {
+            throw new Exception\InvalidArgumentException('Cannot parse hostname from preview token');
+        }
         /**
          * Because the API host will possibly be name.cdn.prismic.io but the preview domain can be name.prismic.io
          * we can only reliably verify the same parent domain name if we parse both domains with something that uses
@@ -364,7 +367,7 @@ class Api
             // $token is untrusted input, possibly from a GET request and will be retrieved by the http client
             $token = $this->validatePreviewToken($token);
             $response = $this->httpClient->request('GET', $token);
-            $responseBody = json_decode((string) $response->getBody());
+            $responseBody = json_decode((string) $response->getBody(), false);
             if (isset($responseBody->mainDocument)) {
                 $document = $this->getById(
                     $responseBody->mainDocument,

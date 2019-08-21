@@ -3,9 +3,11 @@ declare(strict_types=1);
 
 namespace Prismic;
 
+use DateTimeZone;
 use Prismic\Exception;
 use DateTimeImmutable;
 use stdClass;
+use function floor;
 
 /**
  * Embodies a ref to be called on the prismic.io repository. The ref is a prismic.io
@@ -121,7 +123,7 @@ class Ref
         if (null === $this->maybeScheduledAt) {
             return null;
         }
-        return (int) \floor($this->maybeScheduledAt / 1000);
+        return (int) floor($this->maybeScheduledAt / 1000);
     }
 
     /**

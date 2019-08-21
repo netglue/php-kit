@@ -5,6 +5,7 @@ namespace Prismic\Document\Fragment;
 
 use Prismic\Exception\InvalidArgumentException;
 use Prismic\Serializer\Serializer;
+use stdClass;
 use function array_diff_key;
 use function array_flip;
 use function json_encode;
@@ -40,12 +41,13 @@ class Embed implements FragmentInterface
     {
     }
 
-    public static function factory($value) : self
+    public static function factory(stdClass $value) : self
     {
-        $value = $value->value ?? $value;
-        $value = $value->oembed ?? $value;
+        $embed = $value->value ?? $value;
+        $embed = $value->oembed ?? $embed;
+        $value = $embed instanceof stdClass ? $embed : $value;
 
-        if (! isset($value->type) || ! isset($value->embed_url)) {
+        if (! isset($value->type, $value->embed_url)) {
             throw new InvalidArgumentException(sprintf(
                 'The type and embed_url properties are required elements of the JSON payload. Received: %s',
                 json_encode($value)
