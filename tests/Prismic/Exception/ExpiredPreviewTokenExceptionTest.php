@@ -5,6 +5,7 @@ namespace Prismic\Test\Exception;
 
 use GuzzleHttp\Psr7\Response;
 use Prismic\Exception\ExpiredPreviewTokenException;
+use Prismic\Exception\InvalidArgumentException;
 use Prismic\Test\TestCase;
 
 class ExpiredPreviewTokenExceptionTest extends TestCase
@@ -37,6 +38,8 @@ class ExpiredPreviewTokenExceptionTest extends TestCase
         $response = new Response();
         $response->getBody()->write($responseBody);
         $this->assertFalse(ExpiredPreviewTokenException::isTokenExpiryResponse($response));
-        $this->assertNull(ExpiredPreviewTokenException::fromResponse($response));
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('does not indicate that the preview token has expired');
+        ExpiredPreviewTokenException::fromResponse($response);
     }
 }

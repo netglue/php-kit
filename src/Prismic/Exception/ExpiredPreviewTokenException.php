@@ -30,7 +30,7 @@ class ExpiredPreviewTokenException extends RuntimeException
         return strtolower($body['error']) === strtolower(self::RESPONSE_MESSAGE);
     }
 
-    public static function fromResponse(ResponseInterface $response) :? self
+    public static function fromResponse(ResponseInterface $response) : self
     {
         if (self::isTokenExpiryResponse($response)) {
             $exception = new self(
@@ -42,7 +42,7 @@ class ExpiredPreviewTokenException extends RuntimeException
             $exception->response = $response;
             return $exception;
         }
-        return null;
+        throw new InvalidArgumentException('The response given does not indicate that the preview token has expired');
     }
 
     public function getResponse() :? ResponseInterface
