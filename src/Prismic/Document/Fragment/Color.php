@@ -3,12 +3,18 @@ declare(strict_types=1);
 
 namespace Prismic\Document\Fragment;
 
+use function hexdec;
+use function preg_match;
+use function sprintf;
+use function sscanf;
+use function substr;
+
 class Color extends AbstractScalarFragment
 {
     public function asRgb() :? array
     {
         if ($this->isColor()) {
-            list($r, $g, $b) = sscanf($this->value, "#%02x%02x%02x");
+            [$r, $g, $b] = sscanf($this->value, '#%02x%02x%02x');
             return [
                 'r' => $r,
                 'g' => $g,
@@ -32,7 +38,7 @@ class Color extends AbstractScalarFragment
 
     public function isColor() : bool
     {
-        return (bool) \preg_match('/^#[0-9A-F]{6}$/i', (string) $this->value);
+        return (bool) preg_match('/^#[0-9A-F]{6}$/i', (string) $this->value);
     }
 
     public function asInteger() :? int
@@ -40,6 +46,6 @@ class Color extends AbstractScalarFragment
         if (! $this->isColor()) {
             return null;
         }
-        return \hexdec(\substr($this->value, 1));
+        return hexdec(substr($this->value, 1));
     }
 }

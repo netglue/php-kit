@@ -7,6 +7,8 @@ use Prismic\Document\Fragment\HtmlHelperTrait;
 use Prismic\Document\Fragment\LinkInterface;
 use Prismic\Exception\InvalidArgumentException;
 use Prismic\LinkResolver;
+use Prismic\Serializer\HtmlSerializer;
+use Prismic\Serializer\Serializer;
 use function count;
 use function json_encode;
 use function sprintf;
@@ -16,13 +18,15 @@ abstract class AbstractLink implements LinkInterface
 {
     use HtmlHelperTrait;
 
+    protected $linkResolver;
+
     /** @var string|null */
     protected $target;
 
     public static function abstractFactory($value, LinkResolver $linkResolver) :? LinkInterface
     {
         // Inspect payload to determine link type
-        $linkType = isset($value->link_type) ? $value->link_type : null;
+        $linkType = $value->link_type ?? null;
         $linkType = isset($value->value) && isset($value->type) ? $value->type : $linkType;
 
         /**
@@ -86,8 +90,9 @@ abstract class AbstractLink implements LinkInterface
 
     abstract public static function linkFactory($value, LinkResolver $linkResolver) : LinkInterface;
 
-    protected function __construct()
+    protected function __construct(LinkResolver $linkResolver)
     {
+        $this->linkResolver = $linkResolver;
     }
 
     public function getId() :? string
@@ -133,7 +138,7 @@ abstract class AbstractLink implements LinkInterface
     public function __toString() : string
     {
         $url = $this->getUrl();
-        return $url ? $url : '';
+        return $url ?? '';
     }
 
     public function asText() : ?string
@@ -173,17 +178,16 @@ abstract class AbstractLink implements LinkInterface
         return '</a>';
     }
 
-    public function asHtml() : ?string
+    public function asHtml(?callable $serializer = null) :? string
     {
-        $url = $this->getUrl();
-        if (! $url) {
-            return null;
+        if ($serializer) {
+            return $serializer($this);
         }
-        return sprintf(
-            '%s%s%s',
-            $this->openTag(),
-            $this->escapeHtml($url),
-            $this->closeTag()
-        );
+        return (new HtmlSerializer($this->linkResolver))->serialize($this);
+    }
+
+    public function serialize(Serializer $serializer) :? string
+    {
+        return $serializer->serialize($this);
     }
 }

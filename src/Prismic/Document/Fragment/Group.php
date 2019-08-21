@@ -5,19 +5,29 @@ namespace Prismic\Document\Fragment;
 
 use Prismic\Exception\InvalidArgumentException;
 use Prismic\LinkResolver;
+use Prismic\Serializer\HtmlSerializer;
+use Prismic\Serializer\Serializer;
 use function count;
 use function implode;
 use function is_array;
 use function json_encode;
+use const PHP_EOL;
 
 class Group implements CompositeFragmentInterface
 {
     /** @var CompositeFragmentInterface[] */
     private $fragments = [];
 
+    private $linkResolver;
+
+    private function __construct(LinkResolver $linkResolver)
+    {
+        $this->linkResolver = $linkResolver;
+    }
+
     public static function factory($value, LinkResolver $linkResolver) : self
     {
-        $value = isset($value->value) ? $value->value : $value;
+        $value = $value->value ?? $value;
         /**
          * A Group is a zero indexed array of objects/maps. Each element is a fragment,
          */
@@ -27,7 +37,7 @@ class Group implements CompositeFragmentInterface
                 json_encode($value)
             ));
         }
-        $group = new static();
+        $group = new static($linkResolver);
         foreach ($value as $collection) {
             /**
              * Groups are used to encapsulate either the elements in group which are a collection
@@ -44,9 +54,9 @@ class Group implements CompositeFragmentInterface
         return $group;
     }
 
-    public static function emptyGroup() : self
+    public static function emptyGroup(LinkResolver $linkResolver) : self
     {
-        return new static();
+        return new static($linkResolver);
     }
 
     public function asText() :? string
@@ -58,19 +68,13 @@ class Group implements CompositeFragmentInterface
         if (! count($data)) {
             return null;
         }
-        return implode(\PHP_EOL, $data);
+        return implode(PHP_EOL, $data);
     }
 
-    public function asHtml() :? string
+    public function asHtml(?callable $serializer = null) :? string
     {
-        $data = [];
-        foreach ($this->fragments as $fragment) {
-            $data[] = $fragment->asHtml();
-        }
-        if (! count($data)) {
-            return null;
-        }
-        return implode(\PHP_EOL, $data);
+        $serializer = $serializer ?: new HtmlSerializer($this->linkResolver);
+        return $serializer($this);
     }
 
     /**
@@ -79,5 +83,10 @@ class Group implements CompositeFragmentInterface
     public function getItems() : array
     {
         return $this->fragments;
+    }
+
+    public function serialize(Serializer $serializer) :? string
+    {
+        return $serializer->serialize($this);
     }
 }

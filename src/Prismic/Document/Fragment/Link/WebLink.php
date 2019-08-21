@@ -6,6 +6,8 @@ namespace Prismic\Document\Fragment\Link;
 use Prismic\Document\Fragment\LinkInterface;
 use Prismic\Exception\InvalidArgumentException;
 use Prismic\LinkResolver;
+use function json_encode;
+use function sprintf;
 
 class WebLink extends AbstractLink
 {
@@ -22,20 +24,20 @@ class WebLink extends AbstractLink
     public static function linkFactory($value, LinkResolver $linkResolver) : LinkInterface
     {
         /** @var WebLink $link */
-        $link = new static();
-        $value = isset($value->value) ? $value->value : $value;
-        $value = isset($value->image) ? $value->image : $value;
-        $value = isset($value->file) ? $value->file : $value;
+        $link = new static($linkResolver);
+        $value = $value->value ?? $value;
+        $value = $value->image ?? $value;
+        $value = $value->file ?? $value;
 
         if (! isset($value->url)) {
-            throw new InvalidArgumentException(\sprintf(
+            throw new InvalidArgumentException(sprintf(
                 'Expected value to contain a url property, received %s',
-                \json_encode($value)
+                json_encode($value)
             ));
         }
 
         $link->url    = $value->url;
-        $link->target = isset($value->target) ? $value->target : null;
+        $link->target = $value->target ?? null;
         return $link;
     }
 }

@@ -15,7 +15,6 @@ use function nl2br;
 use function preg_split;
 use function sprintf;
 use function strpos;
-use function substr;
 
 trait HtmlHelperTrait
 {
@@ -28,16 +27,14 @@ trait HtmlHelperTrait
         foreach ($attributes as $key => $val) {
             $key = $this->escapeHtml($key);
 
-            if (('on' == substr($key, 0, 2)) || ('constraints' == $key)) {
+            if (($key === 'constraints') || (strpos($key, 'on') === 0)) {
                 // Don't escape event attributes; _do_ substitute double quotes with singles
                 if (! is_scalar($val)) {
                     // non-scalar data should be cast to JSON first
                     $val = json_encode($val);
                 }
-            } else {
-                if (is_array($val)) {
-                    $val = implode(' ', $val);
-                }
+            } elseif (is_array($val)) {
+                $val = implode(' ', $val);
             }
 
             $val = $this->escapeHtmlAttr($val);

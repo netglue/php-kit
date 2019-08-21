@@ -6,12 +6,16 @@ namespace Prismic\Document\Fragment;
 use DateTime;
 use DateTimeImmutable;
 use DateTimeInterface;
+use Throwable;
+use function preg_match;
 
 class Date extends AbstractScalarFragment
 {
 
     /** @var string */
-    private $format;
+    private $format = 'c';
+
+    private $hasTimePart = true;
 
     /** @var string|null */
     protected $value;
@@ -20,29 +24,33 @@ class Date extends AbstractScalarFragment
     {
         /** @var Date $fragment */
         $fragment = parent::factory($value);
-        $fragment->format = 'c';
-        if (\preg_match('/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/', (string) $fragment->value)) {
+        if (preg_match('/^[\d]{4}-[\d]{2}-[\d]{2}$/', (string) $fragment->value)) {
             $fragment->format = 'Y-m-d';
+            $fragment->hasTimePart = false;
         }
         return $fragment;
     }
 
     public function asDateTime() :? DateTimeInterface
     {
-        /**
-         * Date Fragments are always in the format Y-m-d, or in ISO 8601 format including UTC offset
-         */
-        $date = DateTimeImmutable::createFromFormat('!Y-m-d', (string) $this->value);
-        if ($date) {
-            return $date;
+        $format = $this->hasTimePart ? DateTime::ATOM : '!Y-m-d';
+        try {
+            return DateTimeImmutable::createFromFormat($format, (string) $this->value);
+        } catch (Throwable $exception) {
+            return null;
         }
-
-        $date = DateTimeImmutable::createFromFormat(DateTime::ISO8601, (string) $this->value);
-        return $date ? $date : null;
     }
 
-    public function asHtml() :? string
+    public function format() : string
     {
+        return $this->format;
+    }
+
+    public function asHtml(?callable $serializer = null) :? string
+    {
+        if ($serializer) {
+            return $serializer($this);
+        }
         $date = $this->asDateTime();
         if ($date) {
             return sprintf(

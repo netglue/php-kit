@@ -5,43 +5,51 @@ namespace Prismic\Document\Fragment;
 
 use Prismic\Exception\RuntimeException;
 use Prismic\LinkResolver;
+use Prismic\Serializer\Serializer;
 use stdClass;
+use function array_diff_key;
+use function array_flip;
+use function array_keys;
+use function count;
 
 class Image implements ImageInterface
 {
     /** @var ImageInterface[] */
     private $views;
 
-    private function __construct()
+    private $linkResolver;
+
+    private function __construct(LinkResolver $linkResolver)
     {
+        $this->linkResolver = $linkResolver;
     }
 
     public static function factory($value, LinkResolver $linkResolver) : self
     {
-        $image = new static();
-        $value = isset($value->value) ? $value->value : $value;
+        $image = new static($linkResolver);
+        $value = $value->value ?? $value;
 
-        $main = isset($value->main) ? $value->main : $value;
+        $main = $value->main ?? $value;
         unset($value->main);
         /** @var stdClass|null $views */
-        $views = isset($value->views) ? $value->views : null;
+        $views = $value->views ?? null;
 
         $image->views = [
             'main' => ImageView::factory($main, $linkResolver),
         ];
-        if (is_null($views)) {
+        if ($views === null) {
             $views = new stdClass;
-            $keys = \array_diff_key(
+            $keys = array_diff_key(
                 (array) $value,
-                \array_flip(['url', 'alt', 'copyright', 'linkTo', 'label', 'dimensions', 'type'])
+                array_flip(['url', 'alt', 'copyright', 'linkTo', 'label', 'dimensions', 'type'])
             );
             if (count($keys)) {
-                foreach (\array_keys($keys) as $viewName) {
+                foreach (array_keys($keys) as $viewName) {
                     $views->{$viewName} = $value->{$viewName};
                 }
             }
         }
-        foreach (\array_keys((array) $views) as $viewName) {
+        foreach (array_keys((array) $views) as $viewName) {
             $image->views[$viewName] = ImageView::factory($views->{$viewName}, $linkResolver);
         }
 
@@ -62,9 +70,7 @@ class Image implements ImageInterface
 
     public function getView(string $view) :? ImageInterface
     {
-        return isset($this->views[$view])
-               ? $this->views[$view]
-               : null;
+        return $this->views[$view] ?? null;
     }
 
     /**
@@ -80,9 +86,9 @@ class Image implements ImageInterface
         return $this->getMain()->asText();
     }
 
-    public function asHtml() :? string
+    public function asHtml(?callable $serializer = null) :? string
     {
-        return $this->getMain()->asHtml();
+        return $this->getMain()->asHtml($serializer);
     }
 
     public function getLabel() :? string
@@ -128,5 +134,10 @@ class Image implements ImageInterface
     public function ratio() : float
     {
         return $this->getMain()->ratio();
+    }
+
+    public function serialize(Serializer $serializer) :? string
+    {
+        return $serializer->serialize($this->getMain());
     }
 }

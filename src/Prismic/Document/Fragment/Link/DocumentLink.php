@@ -6,13 +6,10 @@ namespace Prismic\Document\Fragment\Link;
 use Prismic\Document\Fragment\LinkInterface;
 use Prismic\DocumentInterface;
 use Prismic\LinkResolver;
+use function array_walk;
 
 class DocumentLink extends AbstractLink
 {
-
-    /** @var LinkResolver */
-    private $linkResolver;
-
     /** @var string */
     private $id;
 
@@ -37,24 +34,22 @@ class DocumentLink extends AbstractLink
     public static function linkFactory($value, LinkResolver $linkResolver) : LinkInterface
     {
         /** @var DocumentLink $link */
-        $link = new static();
-        $link->linkResolver = $linkResolver;
-        $value = isset($value->value) ? $value->value : $value;
-        $link->isBroken = isset($value->isBroken) ? $value->isBroken : false;
+        $link = new static($linkResolver);
+        $value = $value->value ?? $value;
+        $link->isBroken = $value->isBroken ?? false;
         $data = isset($value->document) ? (array) $value->document : (array) $value;
         $keys = [
             'id', 'type', 'tags', 'slug', 'lang', 'uid', 'target'
         ];
-        \array_walk($keys, function ($key) use ($data, $link) {
-            $link->{$key} = isset($data[$key]) ? $data[$key] : null;
+        array_walk($keys, static function ($key) use ($data, $link) {
+            $link->{$key} = $data[$key] ?? null;
         });
         return $link;
     }
 
     public static function withDocument(DocumentInterface $document, LinkResolver $linkResolver) : DocumentLink
     {
-        $link               = new static;
-        $link->linkResolver = $linkResolver;
+        $link               = new static($linkResolver);
         $link->id           = $document->getId();
         $link->uid          = $document->getUid();
         $link->type         = $document->getType();
@@ -98,11 +93,6 @@ class DocumentLink extends AbstractLink
     public function getLang() :? string
     {
         return $this->lang;
-    }
-
-    public function getTarget() : ?string
-    {
-        return $this->target;
     }
 
     public function isBroken() : bool

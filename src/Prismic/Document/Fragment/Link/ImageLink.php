@@ -18,8 +18,8 @@ class ImageLink extends FileLink
         /** @var ImageLink $link */
         $link = parent::linkFactory($value, $linkResolver);
 
-        $value = isset($value->value) ? $value->value : $value;
-        $value = isset($value->image) ? $value->image : $value;
+        $value = $value->value ?? $value;
+        $value = $value->image ?? $value;
 
         $link->height = isset($value->height) ? (int) $value->height : null;
         $link->width  = isset($value->width) ? (int) $value->width : null;

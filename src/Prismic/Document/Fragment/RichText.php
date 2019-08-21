@@ -6,6 +6,16 @@ namespace Prismic\Document\Fragment;
 
 use Prismic\Exception\InvalidArgumentException;
 use Prismic\LinkResolver;
+use Prismic\Serializer\HtmlSerializer;
+use Prismic\Serializer\Serializer;
+use function array_filter;
+use function count;
+use function current;
+use function gettype;
+use function implode;
+use function is_array;
+use function json_encode;
+use const PHP_EOL;
 
 class RichText implements CompositeFragmentInterface
 {
@@ -15,18 +25,25 @@ class RichText implements CompositeFragmentInterface
      */
     private $blocks;
 
+    private $linkResolver;
+
+    private function __construct(LinkResolver $linkResolver)
+    {
+        $this->linkResolver = $linkResolver;
+    }
+
     public static function factory($value, LinkResolver $linkResolver) : FragmentInterface
     {
-        $richText = new static;
+        $richText = new static($linkResolver);
         // In API V2, Rich text is an array of 'Block Level' objects,
         // in V1, the array is in the property 'value'
         if (isset($value->value)) {
             $value = $value->value;
         }
-        if (! \is_array($value)) {
+        if (! is_array($value)) {
             throw new InvalidArgumentException(sprintf(
                 'Expected to be able to determine an array of blocks for the RichText fragment, received %s.',
-                \gettype($value)
+                gettype($value)
             ));
         }
 
@@ -43,7 +60,7 @@ class RichText implements CompositeFragmentInterface
             if (! isset($blockData->type)) {
                 throw new InvalidArgumentException(\sprintf(
                     'No type can be determined for the rich text fragment with the payload %s',
-                    \json_encode($value)
+                    json_encode($value)
                 ));
             }
             $type = $blockData->type;
@@ -96,16 +113,13 @@ class RichText implements CompositeFragmentInterface
         foreach ($this->blocks as $block) {
             $data[] = $block->asText();
         }
-        return \implode(\PHP_EOL, $data);
+        return implode(PHP_EOL, $data);
     }
 
-    public function asHtml() :? string
+    public function asHtml(?callable $serializer = null) :? string
     {
-        $data = [];
-        foreach ($this->blocks as $block) {
-            $data[] = $block->asHtml();
-        }
-        return \implode(\PHP_EOL, $data);
+        $serializer = $serializer ?: new HtmlSerializer($this->linkResolver);
+        return $serializer($this);
     }
 
     public function getFirstParagraph() :? TextElement
@@ -115,7 +129,7 @@ class RichText implements CompositeFragmentInterface
 
     public function getParagraphs()
     {
-        return array_filter($this->blocks, function ($block) {
+        return array_filter($this->blocks, static function ($block) {
             return ($block instanceof TextElement && $block->getTag() === 'p');
         });
     }
@@ -123,16 +137,16 @@ class RichText implements CompositeFragmentInterface
     public function getFirstHeading() :? TextElement
     {
         $headings = $this->getHeadings();
-        if (\count($headings)) {
-            return \current($headings);
+        if (count($headings)) {
+            return current($headings);
         }
         return null;
     }
 
     public function getHeadings()
     {
-        return array_filter($this->blocks, function ($block) {
-            return ($block instanceof TextElement && preg_match('/^h[0-9]{1}$/i', $block->getTag()));
+        return array_filter($this->blocks, static function ($block) {
+            return ($block instanceof TextElement && preg_match('/^h[\d]$/i', $block->getTag()));
         });
     }
 
@@ -169,7 +183,7 @@ class RichText implements CompositeFragmentInterface
 
     public function getLists() : array
     {
-        return \array_filter($this->blocks, function ($block) {
+        return array_filter($this->blocks, static function ($block) {
             return ($block instanceof ListElement);
         });
     }
@@ -177,6 +191,19 @@ class RichText implements CompositeFragmentInterface
     public function getFirstList() :? ListElement
     {
         $lists = $this->getLists();
-        return \count($lists) ? \current($lists) : null;
+        return count($lists) ? current($lists) : null;
+    }
+
+    /**
+     * @return iterable&FragmentInterface[]
+     */
+    public function blocks() : iterable
+    {
+        return $this->blocks;
+    }
+
+    public function serialize(Serializer $serializer) :? string
+    {
+        return $serializer->serialize($this);
     }
 }

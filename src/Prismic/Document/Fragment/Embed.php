@@ -4,6 +4,12 @@ declare(strict_types=1);
 namespace Prismic\Document\Fragment;
 
 use Prismic\Exception\InvalidArgumentException;
+use Prismic\Serializer\Serializer;
+use function array_diff_key;
+use function array_flip;
+use function json_encode;
+use function sprintf;
+use function strtolower;
 
 class Embed implements FragmentInterface
 {
@@ -36,27 +42,27 @@ class Embed implements FragmentInterface
 
     public static function factory($value) : self
     {
-        $value = isset($value->value) ? $value->value : $value;
-        $value = isset($value->oembed) ? $value->oembed : $value;
+        $value = $value->value ?? $value;
+        $value = $value->oembed ?? $value;
 
         if (! isset($value->type) || ! isset($value->embed_url)) {
-            throw new InvalidArgumentException(\sprintf(
+            throw new InvalidArgumentException(sprintf(
                 'The type and embed_url properties are required elements of the JSON payload. Received: %s',
-                \json_encode($value)
+                json_encode($value)
             ));
         }
 
         $embed = new static;
-        $embed->provider = isset($value->provider_name) ? $value->provider_name : null;
+        $embed->provider = $value->provider_name ?? null;
         $embed->type = $value->type;
         $embed->url  = $value->embed_url;
-        $embed->html = isset($value->html) ? $value->html : null;
+        $embed->html = $value->html ?? null;
         $embed->height = isset($value->height) ? (int) $value->height : null;
         $embed->width = isset($value->width) ? (int) $value->width : null;
 
-        $embed->attributes = \array_diff_key(
+        $embed->attributes = array_diff_key(
             (array) $value,
-            \array_flip(['provider_name', 'type', 'embed_url', 'html', 'height', 'width'])
+            array_flip(['provider_name', 'type', 'embed_url', 'html', 'height', 'width'])
         );
         return $embed;
     }
@@ -100,11 +106,11 @@ class Embed implements FragmentInterface
     {
         $attributes = [];
         if ($this->provider) {
-            $attributes['data-oembed-provider'] = \strtolower($this->provider);
+            $attributes['data-oembed-provider'] = strtolower($this->provider);
         }
         $attributes['data-oembed'] = $this->url;
         $attributes['data-oembed-type'] = $this->type;
-        return \sprintf(
+        return sprintf(
             '<div%s>',
             $this->htmlAttributes($attributes)
         );
@@ -115,13 +121,21 @@ class Embed implements FragmentInterface
         return '</div>';
     }
 
-    public function asHtml() :? string
+    public function asHtml(?callable $serializer = null) :? string
     {
-        return \sprintf(
+        if ($serializer) {
+            return $serializer($this);
+        }
+        return sprintf(
             '%s%s%s',
             $this->openTag(),
             $this->html,
             $this->closeTag()
         );
+    }
+
+    public function serialize(Serializer $serializer): ?string
+    {
+        return $serializer->serialize($this);
     }
 }

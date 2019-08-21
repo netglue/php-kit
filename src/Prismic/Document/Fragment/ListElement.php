@@ -4,6 +4,12 @@ declare(strict_types=1);
 namespace Prismic\Document\Fragment;
 
 use Prismic\Exception\InvalidArgumentException;
+use Prismic\Serializer\Serializer;
+use function count;
+use function gettype;
+use function implode;
+use function sprintf;
+use const PHP_EOL;
 
 class ListElement implements CompositeFragmentInterface
 {
@@ -27,7 +33,7 @@ class ListElement implements CompositeFragmentInterface
     {
         $element = new static;
         if ($tag !== 'ul' && $tag !== 'ol') {
-            throw new InvalidArgumentException(\sprintf(
+            throw new InvalidArgumentException(sprintf(
                 'Expected the string ul or ol to the named constructor. Received %s',
                 gettype($tag)
             ));
@@ -45,7 +51,7 @@ class ListElement implements CompositeFragmentInterface
     public function addItem(TextElement $item) : void
     {
         if ($item->getTag() !== 'li') {
-            throw new InvalidArgumentException(\sprintf(
+            throw new InvalidArgumentException(sprintf(
                 'You can only append list items with the "li" tag to a list. Received an element with the tag "%s"',
                 $item->getTag()
             ));
@@ -78,7 +84,7 @@ class ListElement implements CompositeFragmentInterface
             foreach ($this->items as $item) {
                 $data[] = $item->asText();
             }
-            return \implode(\PHP_EOL, $data);
+            return implode(PHP_EOL, $data);
         }
         return null;
     }
@@ -99,8 +105,11 @@ class ListElement implements CompositeFragmentInterface
         return null;
     }
 
-    public function asHtml() : ?string
+    public function asHtml(?callable $serializer = null) :? string
     {
+        if ($serializer) {
+            return $serializer($this);
+        }
         if ($this->hasItems()) {
             $data = [];
             $data[] = $this->openTag();
@@ -108,8 +117,13 @@ class ListElement implements CompositeFragmentInterface
                 $data[] = $item->asHtml();
             }
             $data[] = $this->closeTag();
-            return \implode(\PHP_EOL, $data);
+            return implode(PHP_EOL, $data);
         }
         return null;
+    }
+
+    public function serialize(Serializer $serializer) :? string
+    {
+        return $serializer->serialize($this);
     }
 }

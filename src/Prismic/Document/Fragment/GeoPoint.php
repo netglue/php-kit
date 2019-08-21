@@ -5,6 +5,7 @@ namespace Prismic\Document\Fragment;
 
 use JsonSerializable;
 use Prismic\Exception\InvalidArgumentException;
+use Prismic\Serializer\Serializer;
 use function is_float;
 use function json_encode;
 use function sprintf;
@@ -49,13 +50,21 @@ class GeoPoint implements FragmentInterface, JsonSerializable
         return $this->longitude;
     }
 
-    public function asHtml() :? string
+    public function asHtml(?callable $serializer = null) :? string
     {
+        if ($serializer) {
+            return $serializer($this);
+        }
         return sprintf(
             '<span class="geopoint" data-latitude="%1$s" data-longitude="%2$s">%1$s, %2$s</span>',
             $this->latitude,
             $this->longitude
         );
+    }
+
+    public function serialize(Serializer $serializer) :? string
+    {
+        return $serializer->serialize($this);
     }
 
     public function asText() :? string

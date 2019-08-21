@@ -27,10 +27,10 @@ class FileLink extends WebLink
         /** @var FileLink $link */
         $link = parent::linkFactory($value, $linkResolver);
         // V1
-        $value = isset($value->value) ? $value->value : $value;
-        $value = isset($value->file) ? $value->file : $value;
+        $value = $value->value ?? $value;
+        $value = $value->file ?? $value;
 
-        $link->filename = isset($value->name) ? $value->name : null;
+        $link->filename = $value->name ?? null;
         $link->filesize = isset($value->size) ? (int) $value->size : null;
 
         return $link;
@@ -46,9 +46,12 @@ class FileLink extends WebLink
         return $this->filename;
     }
 
-    public function asHtml() : ?string
+    public function asHtml(?callable $serializer = null) :? string
     {
-        $label = $this->filename ? $this->filename : $this->url;
+        if ($serializer) {
+            return $serializer($this);
+        }
+        $label = $this->filename ?: $this->url;
         return sprintf(
             '%s%s%s',
             $this->openTag(),

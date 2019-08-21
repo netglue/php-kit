@@ -1,14 +1,15 @@
 <?php
-
 declare(strict_types=1);
 
 namespace Prismic\Document\Fragment;
 
 use Prismic\Exception\InvalidArgumentException;
 use Prismic\LinkResolver;
-
+use Prismic\Serializer\HtmlSerializer;
+use Prismic\Serializer\Serializer;
 use function count;
 use function implode;
+use const PHP_EOL;
 
 class Slice implements CompositeFragmentInterface
 {
@@ -31,16 +32,20 @@ class Slice implements CompositeFragmentInterface
     /** @var string|null */
     private $label;
 
+    private $linkResolver;
+
     private function __construct(
         string $type,
         FragmentCollection $primary,
         Group $group,
+        LinkResolver $linkResolver,
         ?string $label = null
     ) {
         $this->type    = $type;
         $this->label   = $label;
         $this->primary = $primary;
         $this->group   = $group;
+        $this->linkResolver = $linkResolver;
     }
 
     public static function factory($value, LinkResolver $linkResolver) : FragmentInterface
@@ -85,10 +90,10 @@ class Slice implements CompositeFragmentInterface
                  ? FragmentCollection::factory($value->primary, $linkResolver)
                  : $primary;
 
-        $group = $group ? $group : Group::emptyGroup();
-        $primary = $primary ? $primary : FragmentCollection::emptyCollection();
+        $group = $group ?: Group::emptyGroup($linkResolver);
+        $primary = $primary ?: FragmentCollection::emptyCollection($linkResolver);
 
-        return new static($type, $primary, $group, $label);
+        return new static($type, $primary, $group, $linkResolver, $label);
     }
 
     public function getType() : string
@@ -123,34 +128,18 @@ class Slice implements CompositeFragmentInterface
             $data[] = $group;
         }
         return count($data) >= 1
-            ? implode(\PHP_EOL, $data)
+            ? implode(PHP_EOL, $data)
             : null;
     }
 
-    public function asHtml() :? string
+    public function asHtml(?callable $serializer = null) :? string
     {
-        $primary = $this->primary->asHtml();
-        $group   = $this->group->asHtml();
-        if (empty($primary) && empty($group)) {
-            return null;
-        }
+        $serializer = $serializer ?: new HtmlSerializer($this->linkResolver);
+        return $serializer($this);
+    }
 
-        $attributes = [
-            'data-slice-type' => $this->type,
-        ];
-        if ($this->label) {
-            $attributes['class'] = $this->label;
-        }
-        $data = [
-            sprintf('<div%s>', $this->htmlAttributes($attributes)),
-        ];
-        if ($primary) {
-            $data[] = $primary;
-        }
-        if ($group) {
-            $data[] = $group;
-        }
-        $data[] = '</div>';
-        return implode(\PHP_EOL, $data);
+    public function serialize(Serializer $serializer): ?string
+    {
+        return $serializer->serialize($this);
     }
 }
