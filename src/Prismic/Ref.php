@@ -132,11 +132,8 @@ class Ref
         if (null === $this->maybeScheduledAt) {
             return null;
         }
-
-        return DateTimeImmutable::createFromFormat(
-            'U',
-            (string) $this->getScheduledAtTimestamp()
-        );
+        $date = dateTimeImmutableFromFormat('U', (string) $this->getScheduledAtTimestamp());
+        return $date->setTimezone(new DateTimeZone('UTC'));
     }
 
     /**
