@@ -43,11 +43,10 @@ class Embed implements FragmentInterface
 
     public static function factory(stdClass $value) : self
     {
-        $embed = $value->value ?? $value;
-        $embed = $value->oembed ?? $embed;
-        $value = $embed instanceof stdClass ? $embed : $value;
+        $value = $value->value ?? $value;
+        $value = $value->oembed ?? $value;
 
-        if (! isset($value->type, $value->embed_url)) {
+        if (! $value instanceof stdClass || ! isset($value->type, $value->embed_url)) {
             throw new InvalidArgumentException(sprintf(
                 'The type and embed_url properties are required elements of the JSON payload. Received: %s',
                 json_encode($value)
