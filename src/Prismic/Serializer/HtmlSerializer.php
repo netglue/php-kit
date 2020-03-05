@@ -24,6 +24,7 @@ use Prismic\LinkResolver;
 use function count;
 use function implode;
 use function sprintf;
+use function strtolower;
 use const PHP_EOL;
 
 class HtmlSerializer implements Serializer
@@ -112,11 +113,21 @@ class HtmlSerializer implements Serializer
 
     private function embed(Embed $fragment) :? string
     {
+        $attributes = [];
+        if ($fragment->getProvider()) {
+            $attributes['data-oembed-provider'] = strtolower($fragment->getProvider());
+        }
+        $attributes['data-oembed'] = $fragment->getUrl();
+        $attributes['data-oembed-type'] = $fragment->getType();
+        $openTag = sprintf(
+            '<div%s>',
+            $this->htmlAttributes($attributes)
+        );
         return sprintf(
             '%s%s%s',
-            $fragment->openTag(),
+            $openTag,
             $fragment->getHtml(),
-            $fragment->closeTag()
+            '</div>'
         );
     }
 

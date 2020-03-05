@@ -35,10 +35,24 @@ class Embed implements FragmentInterface
     private $height;
 
     /** @var string[] */
-    private $attributes = [];
+    private $attributes;
 
-    private function __construct()
-    {
+    private function __construct(
+        string $type,
+        string $url,
+        array $attributes,
+        ?string $html,
+        ?string $provider,
+        ?int $width,
+        ?int $height
+    ) {
+        $this->type = $type;
+        $this->url = $url;
+        $this->attributes = $attributes;
+        $this->html = $html;
+        $this->provider = $provider;
+        $this->width = $width;
+        $this->height = $height;
     }
 
     public static function factory(stdClass $value) : self
@@ -52,20 +66,19 @@ class Embed implements FragmentInterface
                 json_encode($value)
             ));
         }
-
-        $embed = new static;
-        $embed->provider = $value->provider_name ?? null;
-        $embed->type = $value->type;
-        $embed->url  = $value->embed_url;
-        $embed->html = $value->html ?? null;
-        $embed->height = isset($value->height) ? (int) $value->height : null;
-        $embed->width = isset($value->width) ? (int) $value->width : null;
-
-        $embed->attributes = array_diff_key(
+        $attributes = array_diff_key(
             (array) $value,
             array_flip(['provider_name', 'type', 'embed_url', 'html', 'height', 'width'])
         );
-        return $embed;
+        return new static(
+            $value->type,
+            $value->embed_url,
+            $attributes,
+            $value->html ?? null,
+            $value->provider_name ?? null,
+            isset($value->width) ? (int) $value->width : null,
+            isset($value->height) ? (int) $value->height : null
+        );
     }
 
     public function getProvider() :? string
@@ -103,6 +116,14 @@ class Embed implements FragmentInterface
         return $this->height;
     }
 
+    public function attributes() : array
+    {
+        return $this->attributes;
+    }
+
+    /**
+     * @deprecated
+     */
     public function openTag() : string
     {
         $attributes = [];
@@ -117,6 +138,9 @@ class Embed implements FragmentInterface
         );
     }
 
+    /**
+     * @deprecated
+     */
     public function closeTag() : string
     {
         return '</div>';
@@ -135,7 +159,7 @@ class Embed implements FragmentInterface
         );
     }
 
-    public function serialize(Serializer $serializer): ?string
+    public function serialize(Serializer $serializer) :? string
     {
         return $serializer->serialize($this);
     }

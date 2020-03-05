@@ -6,7 +6,11 @@ All notable changes to this project will be documented in this file, in reverse 
 
 ### Added
 
-- Function in Prismic namespace `dateTimeImmutableFromFormat()` that will return a `DateTimeImmutable` or throw an exception.
+- Function in Prismic namespace `dateTimeImmutableFromFormat()` that will return a `DateTimeImmutable` or throw an
+ exception.
+- All document fragments have a new method named `serialize()` which accepts a `\Prismic\Serializer\Serializer`
+ instance. The serializer must be callable (implement `__invoke()`) and the `serialize` method can return anything…
+- Default HTML Serializer implementation in `\Prismic\Serializer\HtmlSerializer`
 
 ### Changed
 
@@ -14,10 +18,13 @@ All notable changes to this project will be documented in this file, in reverse 
 response does not indicate that this was indeed the error condition. Previously this returned null. As a library
 exception, this isn't a BC break IMO, as the suitability of the response was always checked anyway.
 - The `Ref::getScheduledDate()` method now returns the date in UTC
+- All document fragments now accept an arbitrary callable to `FragmentInterface::asHtml(?callable $serializer = null)`
+ so that you can easily override the default HTML representation of that fragment.  
 
 ### Deprecated
 
-- Nothing
+- `Prismic\Fragment\Embed::openTag()`
+- `Prismic\Fragment\Embed::closeTag()`
 
 ### Removed
 

@@ -8,6 +8,8 @@ use Prismic\LinkResolver;
 use Prismic\Serializer\HtmlSerializer;
 use Prismic\Serializer\Serializer;
 use function array_key_exists;
+use function is_array;
+use function is_string;
 use function json_encode;
 use function sprintf;
 
@@ -51,27 +53,27 @@ class TextElement implements FragmentInterface
      */
     private $label;
 
-    private function __construct(LinkResolver $linkResolver)
+    private function __construct(LinkResolver $linkResolver, string $type, array $spans, ?string $text, ?string $label)
     {
+        $this->type = $type;
+        $this->spans = $spans;
         $this->linkResolver = $linkResolver;
+        $this->text = $text;
+        $this->label = $label;
     }
 
     public static function factory($value, LinkResolver $linkResolver) : self
     {
-        $element = new static($linkResolver);
         $type = $value->type ?? null;
-        if (! $type || ! array_key_exists($type, static::$tagMap)) {
+        if (! is_string($type) || ! array_key_exists($type, static::$tagMap)) {
             throw new InvalidArgumentException(sprintf(
                 'No Text Element type can be determined from the payload %s',
                 json_encode($value)
             ));
         }
-        $element->text = $value->text ?? null;
-        $element->type = $type;
-        $element->spans = $value->spans ?? [];
-        $element->label = $value->label ?? null;
-
-        return $element;
+        $spans = $value->spans ?? [];
+        $spans = is_array($spans) ? $spans : [];
+        return new static($linkResolver, $type, $spans, $value->text ?? null, $value->label ?? null);
     }
 
     public function asText() : ?string
