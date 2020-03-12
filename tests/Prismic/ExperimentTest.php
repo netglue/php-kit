@@ -13,7 +13,7 @@ class ExperimentTest extends TestCase
      */
     private $experiments;
 
-    protected function setUp()
+    protected function setUp() : void
     {
         $experimentsJson = \json_decode($this->getJsonFixture('experiments.json'));
         $this->experiments = Experiments::parse($experimentsJson);

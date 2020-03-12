@@ -39,7 +39,7 @@ class ApiTest extends TestCase
     /** @var string */
     private $repoUrl = 'https://whatever.prismic.io/api/v2';
 
-    public function setUp()
+    protected function setUp() : void
     {
         unset($_COOKIE);
 

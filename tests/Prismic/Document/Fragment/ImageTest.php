@@ -15,7 +15,7 @@ class ImageTest extends TestCase
 
     private $collection;
 
-    public function setUp()
+    protected function setUp() : void
     {
         parent::setUp();
         $data = \json_decode($this->getJsonFixture('fragments/image.json'));

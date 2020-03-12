@@ -13,7 +13,7 @@ class DateTest extends TestCase
     /** @var FragmentCollection */
     private $collection;
 
-    public function setUp()
+    protected function setUp() : void
     {
         parent::setUp();
         $this->collection = FragmentCollection::factory(

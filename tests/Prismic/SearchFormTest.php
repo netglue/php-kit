@@ -42,7 +42,7 @@ class SearchFormTest extends TestCase
      */
     private $expectedMasterRef = 'UgjWQN_mqa8HvPJY';
 
-    public function setUp()
+    protected function setUp() : void
     {
         $this->apiData = ApiData::withJsonString($this->getJsonFixture('data.json'));
         $this->form = Form::withJsonObject($this->apiData->getForms()['blogs']);

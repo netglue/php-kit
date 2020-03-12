@@ -15,7 +15,7 @@ class SliceTest extends TestCase
     /** @var FragmentCollection */
     private $collection;
 
-    public function setUp()
+    protected function setUp() : void
     {
         parent::setUp();
         $data = \json_decode($this->getJsonFixture('fragments/slices.json'));

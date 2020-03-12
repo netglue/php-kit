@@ -9,12 +9,6 @@ use Prismic\Test\TestCase;
 
 class TextElementTest extends TestCase
 {
-
-    public function setUp()
-    {
-        parent::setUp();
-    }
-
     /**
      * @expectedException \Prismic\Exception\InvalidArgumentException
      */

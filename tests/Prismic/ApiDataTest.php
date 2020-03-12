@@ -13,7 +13,7 @@ class ApiDataTest extends TestCase
 
     private $data;
 
-    public function setUp()
+    protected function setUp() : void
     {
         $json = $this->getJsonFixture('data.json');
         $this->data = ApiData::withJsonString($json);

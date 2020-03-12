@@ -13,7 +13,7 @@ class DocumentTest extends TestCase
 
     private $api;
 
-    public function setUp()
+    protected function setUp() : void
     {
         parent::setUp();
         $this->api = $this->prophesize(Api::class);
