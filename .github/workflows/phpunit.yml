@@ -42,6 +42,8 @@ jobs:
               run: composer install --prefer-dist --no-progress --no-suggest --ignore-platform-reqs
             - name: PHPUnit
               run: php -dpcov.directory=. -dpcov.enabled=1 -dpcov.exclude="~vendor~" ./vendor/bin/phpunit --stop-on-error --coverage-clover=coverage.xml
+            - name: Check CS
+              run: composer cs-check
             - name: Upload Coverage to CodeCov
               uses: codecov/codecov-action@v1
               with:
