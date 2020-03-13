@@ -20,4 +20,12 @@ class HydratorTest extends TestCase
         $this->expectException(InvalidArgumentException::class);
         $hydrator->mapType('whatever', stdClass::class);
     }
+
+    public function testThatMapsGivenToTheConstructorWillBeValidated() : void
+    {
+        $api = $this->prophesize(Api::class)->reveal();
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('does not implement');
+        new Hydrator($api, ['whatever' => stdClass::class], DocumentInterface::class);
+    }
 }
