@@ -8,6 +8,7 @@ use Prismic\Document\Hydrator;
 use Prismic\DocumentInterface;
 use Prismic\Exception\InvalidArgumentException;
 use Prismic\Test\TestCase;
+use stdClass;
 
 class HydratorTest extends TestCase
 {
@@ -17,6 +18,6 @@ class HydratorTest extends TestCase
         $hydrator = new Hydrator($api, [], DocumentInterface::class);
 
         $this->expectException(InvalidArgumentException::class);
-        $hydrator->mapType('whatever', \stdClass::class);
+        $hydrator->mapType('whatever', stdClass::class);
     }
 }

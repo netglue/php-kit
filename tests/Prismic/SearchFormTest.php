@@ -15,6 +15,7 @@ use Prismic\Exception\JsonError;
 use Prismic\Exception\RequestFailureException;
 use Prismic\Exception\RuntimeException;
 use Prismic\Form;
+use Prismic\Json;
 use Prismic\Predicates;
 use Prismic\Response as PrismicResponse;
 use Prismic\SearchForm;
@@ -24,13 +25,20 @@ use Psr\Cache\CacheItemInterface;
 use Psr\Cache\CacheItemPoolInterface;
 use stdClass;
 use Symfony\Component\Cache\Exception\CacheException;
+use Throwable;
+use function assert;
+use function current;
+use function parse_url;
+use function sprintf;
+use function substr_count;
+use const PHP_URL_QUERY;
 
 class SearchFormTest extends TestCase
 {
     /** @var ApiData */
     private $apiData;
 
-    /** @var ClientInterface */
+    /** @var ClientInterface|ObjectProphecy */
     private $httpClient;
 
     /** @var CacheItemPoolInterface|ObjectProphecy */
@@ -41,11 +49,6 @@ class SearchFormTest extends TestCase
 
     /** @var Api */
     private $api;
-
-    /**
-     * @see fixtures/data.json
-     */
-    private $expectedMasterRef = 'UgjWQN_mqa8HvPJY';
 
     protected function setUp() : void
     {
@@ -66,6 +69,7 @@ class SearchFormTest extends TestCase
         );
         $api->setLinkResolver(new FakeLinkResolver());
         $this->api = $api;
+
         return $api;
     }
 
@@ -97,7 +101,7 @@ class SearchFormTest extends TestCase
 
     private function prepareCacheWithJsonString(string $json) : void
     {
-        $cachedJson = \json_decode($json);
+        $cachedJson = Json::decodeObject($json);
         $cacheItem = $this->prophesize(CacheItemInterface::class);
         $cacheItem->get()->willReturn($cachedJson);
         $cacheItem->isHit()->willReturn(true);
@@ -208,6 +212,9 @@ class SearchFormTest extends TestCase
         $this->assertSame((string) $ref, $data['ref']);
     }
 
+    /**
+     * @param mixed $expectedValue
+     */
     private function assertScalarOptionIsSet(SearchForm $form, string $key, $expectedValue) : void
     {
         $data = $form->getData();
@@ -269,7 +276,7 @@ class SearchFormTest extends TestCase
     public function testFetchWithArrayArg() : void
     {
         $this->assertScalarOptionIsSet(
-            $this->getSearchForm()->fetch(...['one','two','three']),
+            $this->getSearchForm()->fetch(...['one', 'two', 'three']),
             'fetch',
             'one,two,three'
         );
@@ -425,7 +432,6 @@ class SearchFormTest extends TestCase
     public function testGuzzleExceptionsAreWrappedInSubmit() : void
     {
         $guzzleException = new TransferException('A Guzzle Exception');
-        /** @var ObjectProphecy $this->httpClient */
         $this->httpClient->request('GET', Argument::type('string'))->willThrow($guzzleException);
         $item = $this->prophesize(CacheItemInterface::class);
         $item->isHit()->willReturn(false);
@@ -448,6 +454,7 @@ class SearchFormTest extends TestCase
             $body
         );
         $this->httpClient->request('GET', Argument::type('string'))->willReturn($response);
+
         return $response;
     }
 
@@ -504,7 +511,7 @@ class SearchFormTest extends TestCase
         try {
             $form->submit();
             $this->fail('No exception was thrown');
-        } catch (\Exception $exception) {
+        } catch (Throwable $exception) {
             $this->assertInstanceOf(RuntimeException::class, $exception);
             $this->assertSame($e, $exception->getPrevious());
         }
@@ -532,8 +539,8 @@ class SearchFormTest extends TestCase
     {
         $this->prepareV2SearchResult();
         $form = $this->getSearchForm();
-        /** @var Hydrator $hydrator */
         $hydrator = $this->api->getHydrator();
+        assert($hydrator instanceof Hydrator);
         $hydrator->mapType('doc-type', Document\CustomDocument::class);
         $response = $form->submit();
         $results = $response->getResults();

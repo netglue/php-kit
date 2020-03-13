@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Prismic\Test;
 
 use Prismic\Document\Hydrator;
-use Prismic\Exception\InvalidArgumentException;
 use Prismic\Exception\JsonError;
 use Prismic\Response;
 

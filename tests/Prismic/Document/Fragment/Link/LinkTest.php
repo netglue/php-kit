@@ -64,6 +64,7 @@ class LinkTest extends TestCase
         AbstractLink::abstractFactory($data, new FakeLinkResolver());
     }
 
+    /** @return mixed[] */
     public function emptyLinkDataProvider() : iterable
     {
         return [
@@ -87,8 +88,8 @@ class LinkTest extends TestCase
 
     public function testDocumentLinkReturnsExpectedValues() : void
     {
-        /** @var DocumentLink $link */
         $link = $this->getLinkCollection()->get('link-document');
+        assert($link instanceof DocumentLink);
         $this->assertInstanceOf(DocumentLink::class, $link);
         $this->assertFalse($link->isBroken());
         $this->assertNull($link->getTarget());
@@ -106,8 +107,8 @@ class LinkTest extends TestCase
 
     public function testBrokenLinkReturnsExpectedValues() : void
     {
-        /** @var DocumentLink $link */
         $link = $this->getLinkCollection()->get('link-broken');
+        assert($link instanceof DocumentLink);
         $this->assertInstanceOf(DocumentLink::class, $link);
         $this->assertTrue($link->isBroken());
         $this->assertNull($link->getTarget());
@@ -154,8 +155,8 @@ class LinkTest extends TestCase
 
     public function testFileLinkReturnsExpectedValues() : void
     {
-        /** @var FileLink $link */
         $link = $this->getLinkCollection()->get('link-pdf');
+        assert($link instanceof FileLink);
         $this->assertInstanceOf(FileLink::class, $link);
         $this->assertFalse($link->isBroken());
         $this->assertIsInt($link->getFilesize());
@@ -167,8 +168,8 @@ class LinkTest extends TestCase
 
     public function testImageLinkReturnsExpectedValues() : void
     {
-        /** @var ImageLink $link */
         $link = $this->getLinkCollection()->get('link-media');
+        assert($link instanceof ImageLink);
         $this->assertInstanceOf(ImageLink::class, $link);
         $this->assertFalse($link->isBroken());
         $this->assertIsInt($link->getFilesize());

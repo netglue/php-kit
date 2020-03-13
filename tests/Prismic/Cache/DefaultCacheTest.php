@@ -7,16 +7,20 @@ use Prismic\Cache\DefaultCache;
 use Prismic\Test\TestCase;
 use Symfony\Component\Cache\Adapter\ApcuAdapter;
 use Symfony\Component\Cache\Adapter\ArrayAdapter;
+use function extension_loaded;
+use function ini_get;
 
 class DefaultCacheTest extends TestCase
 {
     public function testApcUsedAsDefaultCacheIfAvailable() : void
     {
-        if (! \extension_loaded('apc')) {
+        if (! extension_loaded('apc')) {
             $this->markTestSkipped('APC extension is not loaded');
+
             return;
         }
-        if (! \ini_get('apc.enable_cli')) {
+
+        if (! ini_get('apc.enable_cli')) {
             $this->markTestSkipped('APC is disabled on the CLI');
         }
 
@@ -26,10 +30,12 @@ class DefaultCacheTest extends TestCase
 
     public function testArrayCacheIsUsedByDefaultWhenApcIsNotAvailable() : void
     {
-        if (\extension_loaded('apc')) {
+        if (extension_loaded('apc')) {
             $this->markTestSkipped('APC extension is loaded so this test cannot continue');
+
             return;
         }
+
         $cache = DefaultCache::factory();
         $this->assertInstanceOf(ArrayAdapter::class, $cache);
     }
