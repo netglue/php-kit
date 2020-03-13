@@ -5,8 +5,8 @@ namespace Prismic\Document\Fragment;
 
 use JsonSerializable;
 use Prismic\Exception\InvalidArgumentException;
+use Prismic\Json;
 use function is_float;
-use function json_encode;
 use function sprintf;
 
 class GeoPoint implements FragmentInterface, JsonSerializable
@@ -35,7 +35,7 @@ class GeoPoint implements FragmentInterface, JsonSerializable
         if (! is_float($longitude) || ! is_float($latitude)) {
             throw new InvalidArgumentException(sprintf(
                 'Expected an object containing latitude and longitude values, received: %s',
-                json_encode($value)
+                Json::encode($value)
             ));
         }
 

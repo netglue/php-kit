@@ -5,8 +5,8 @@ namespace Prismic\Document\Fragment\Link;
 
 use Prismic\Document\Fragment\LinkInterface;
 use Prismic\Exception\InvalidArgumentException;
+use Prismic\Json;
 use Prismic\LinkResolver;
-use function json_encode;
 use function sprintf;
 
 class WebLink extends AbstractLink
@@ -29,7 +29,7 @@ class WebLink extends AbstractLink
         if (! isset($value->url)) {
             throw new InvalidArgumentException(sprintf(
                 'Expected value to contain a url property, received %s',
-                json_encode($value)
+                Json::encode($value)
             ));
         }
 

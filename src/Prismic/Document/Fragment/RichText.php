@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace Prismic\Document\Fragment;
 
 use Prismic\Exception\InvalidArgumentException;
+use Prismic\Json;
 use Prismic\LinkResolver;
 use function array_filter;
 use function count;
@@ -12,7 +13,6 @@ use function gettype;
 use function implode;
 use function is_array;
 use function is_object;
-use function json_encode;
 use function preg_match;
 use function sprintf;
 use const PHP_EOL;
@@ -52,7 +52,7 @@ class RichText implements CompositeFragmentInterface
             if (! isset($blockData->type)) {
                 throw new InvalidArgumentException(sprintf(
                     'No type can be determined for the rich text fragment with the payload %s',
-                    json_encode($value)
+                    Json::encode($value)
                 ));
             }
 

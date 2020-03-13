@@ -5,12 +5,12 @@ namespace Prismic\Document\Fragment;
 
 use Laminas\Escaper\Escaper;
 use Prismic\Document\Fragment\Link\AbstractLink;
+use Prismic\Json;
 use Prismic\LinkResolver;
 use function array_walk;
 use function implode;
 use function is_array;
 use function is_scalar;
-use function json_encode;
 use function nl2br;
 use function preg_split;
 use function sprintf;
@@ -33,7 +33,7 @@ trait HtmlHelperTrait
                 // Don't escape event attributes; _do_ substitute double quotes with singles
                 if (! is_scalar($val)) {
                     // non-scalar data should be cast to JSON first
-                    $val = json_encode($val);
+                    $val = Json::encode($val);
                 }
             } elseif (is_array($val)) {
                 $val = implode(' ', $val);

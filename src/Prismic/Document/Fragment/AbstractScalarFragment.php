@@ -4,12 +4,12 @@ declare(strict_types=1);
 namespace Prismic\Document\Fragment;
 
 use Prismic\Exception\InvalidArgumentException;
+use Prismic\Json;
 use function gettype;
 use function is_array;
 use function is_bool;
 use function is_numeric;
 use function is_object;
-use function json_encode;
 use function property_exists;
 use function sprintf;
 
@@ -39,7 +39,7 @@ abstract class AbstractScalarFragment implements FragmentInterface
             throw new InvalidArgumentException(sprintf(
                 'Cannot determine single scalar value from input of type %s with value %s',
                 gettype($value),
-                json_encode($value)
+                Json::encode($value)
             ));
         }
 

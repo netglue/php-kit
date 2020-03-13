@@ -4,11 +4,11 @@ declare(strict_types=1);
 namespace Prismic\Document\Fragment;
 
 use Prismic\Exception\InvalidArgumentException;
+use Prismic\Json;
 use Prismic\LinkResolver;
 use function count;
 use function implode;
 use function is_array;
-use function json_encode;
 use function sprintf;
 use const PHP_EOL;
 
@@ -27,7 +27,7 @@ class Group implements CompositeFragmentInterface
         if (! is_array($value)) {
             throw new InvalidArgumentException(sprintf(
                 'Expected an indexed array for group construction, received %s',
-                json_encode($value)
+                Json::encode($value)
             ));
         }
 

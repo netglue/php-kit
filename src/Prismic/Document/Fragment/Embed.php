@@ -4,9 +4,9 @@ declare(strict_types=1);
 namespace Prismic\Document\Fragment;
 
 use Prismic\Exception\InvalidArgumentException;
+use Prismic\Json;
 use function array_diff_key;
 use function array_flip;
-use function json_encode;
 use function sprintf;
 use function strtolower;
 
@@ -47,7 +47,7 @@ class Embed implements FragmentInterface
         if (! isset($value->type, $value->embed_url)) {
             throw new InvalidArgumentException(sprintf(
                 'The type and embed_url properties are required elements of the JSON payload. Received: %s',
-                json_encode($value)
+                Json::encode($value)
             ));
         }
 

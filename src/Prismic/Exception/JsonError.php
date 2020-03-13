@@ -27,6 +27,26 @@ class JsonError extends JsonException implements ExceptionInterface
         return $error;
     }
 
+    public static function serializeFailed(JsonException $exception) : self
+    {
+        return new static(
+            sprintf(
+                'Failed to encode the given data to a JSON string: %s',
+                $exception->getMessage()
+            ),
+            $exception->getCode(),
+            $exception
+        );
+    }
+
+    public static function cannotUnserializeToObject(string $payload) : self
+    {
+        return new static(sprintf(
+            'The given payload cannot be unserialized as an object: %s',
+            $payload
+        ));
+    }
+
     public function payload() :? string
     {
         return $this->payload;

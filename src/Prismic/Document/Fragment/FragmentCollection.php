@@ -5,6 +5,7 @@ namespace Prismic\Document\Fragment;
 
 use Prismic\Document\Fragment\Link\AbstractLink;
 use Prismic\Exception\UnexpectedValueException;
+use Prismic\Json;
 use Prismic\LinkResolver;
 use function count;
 use function current;
@@ -15,7 +16,6 @@ use function is_bool;
 use function is_float;
 use function is_object;
 use function is_string;
-use function json_encode;
 use function preg_match;
 use function property_exists;
 use function sprintf;
@@ -190,7 +190,7 @@ class FragmentCollection implements CompositeFragmentInterface
         throw new UnexpectedValueException(sprintf(
             'Cannot determine the fragment type at index %s with the content %s',
             $key,
-            json_encode($value)
+            Json::encode($value)
         ));
     }
 

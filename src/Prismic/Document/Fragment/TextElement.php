@@ -4,11 +4,10 @@ declare(strict_types=1);
 namespace Prismic\Document\Fragment;
 
 use Prismic\Exception\InvalidArgumentException;
+use Prismic\Json;
 use Prismic\LinkResolver;
 use function array_key_exists;
-use function json_encode;
 use function sprintf;
-use const JSON_THROW_ON_ERROR;
 
 class TextElement implements FragmentInterface
 {
@@ -54,7 +53,7 @@ class TextElement implements FragmentInterface
         if (! $type || ! array_key_exists($type, $element->tagMap)) {
             throw new InvalidArgumentException(sprintf(
                 'No Text Element type can be determined from the payload %s',
-                json_encode($value, JSON_THROW_ON_ERROR, 512)
+                Json::encode($value)
             ));
         }
 

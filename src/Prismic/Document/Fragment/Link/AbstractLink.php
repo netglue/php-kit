@@ -6,9 +6,9 @@ namespace Prismic\Document\Fragment\Link;
 use Prismic\Document\Fragment\HtmlHelperTrait;
 use Prismic\Document\Fragment\LinkInterface;
 use Prismic\Exception\InvalidArgumentException;
+use Prismic\Json;
 use Prismic\LinkResolver;
 use function count;
-use function json_encode;
 use function sprintf;
 use function substr;
 
@@ -36,7 +36,7 @@ abstract class AbstractLink implements LinkInterface
         if ($linkType === null) {
             throw new InvalidArgumentException(sprintf(
                 'Expected a payload describing a link, received %s',
-                json_encode($value)
+                Json::encode($value)
             ));
         }
 
@@ -82,7 +82,7 @@ abstract class AbstractLink implements LinkInterface
         if ($link === null) {
             throw new InvalidArgumentException(sprintf(
                 'Cannot determine a link from the given payload: %s',
-                json_encode($value)
+                Json::encode($value)
             ));
         }
 
