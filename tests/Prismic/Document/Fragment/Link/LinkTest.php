@@ -11,19 +11,19 @@ use Prismic\Document\Fragment\Link\ImageLink;
 use Prismic\Document\Fragment\Link\WebLink;
 use Prismic\Document\Fragment\LinkInterface;
 use Prismic\Exception\InvalidArgumentException;
+use Prismic\Json;
 use Prismic\Test\FakeLinkResolver;
 use Prismic\Test\TestCase;
+use function assert;
 
 class LinkTest extends TestCase
 {
     private function getLinkCollection() : FragmentCollection
     {
-        /** @var FragmentCollection $collection */
-        $collection = FragmentCollection::factory(
-            \json_decode($this->getJsonFixture('fragments/links.json')),
+        return FragmentCollection::factory(
+            Json::decodeObject($this->getJsonFixture('fragments/links.json')),
             new FakeLinkResolver()
         );
-        return $collection;
     }
 
     public function testAbstractFactoryForAllLinkTypes() : void
@@ -37,14 +37,14 @@ class LinkTest extends TestCase
     {
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('Expected a payload describing a link');
-        AbstractLink::abstractFactory('Foo', new FakeLinkResolver());
+        AbstractLink::abstractFactory(Json::decodeObject('{}'), new FakeLinkResolver());
     }
 
     public function testExceptionThrownForUnknownMediaType() : void
     {
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('Encountered a V2 Media link but the subtype was neither image, nor document.');
-        $data = \json_decode('{
+        $data = Json::decodeObject('{
             "link_type": "Media",
             "name": "image.gif",
             "kind": "who-knows!",
@@ -57,7 +57,7 @@ class LinkTest extends TestCase
     {
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('Cannot determine a link from the given payload');
-        $data = \json_decode('{
+        $data = Json::decodeObject('{
             "link_type": "Unknown",
             "url": "whatever"
         }');
@@ -81,7 +81,7 @@ class LinkTest extends TestCase
     public function testNullIsReturnedForV2EmptyLinks(string $json) : void
     {
         $this->assertNull(
-            AbstractLink::abstractFactory(\json_decode($json), new FakeLinkResolver())
+            AbstractLink::abstractFactory(Json::decodeObject($json), new FakeLinkResolver())
         );
     }
 
@@ -121,8 +121,8 @@ class LinkTest extends TestCase
 
     public function testWebLinksReturnsExpectedValues() : void
     {
-        /** @var WebLink $link */
         $link = $this->getLinkCollection()->get('link-web');
+        assert($link instanceof WebLink);
         $this->assertInstanceOf(WebLink::class, $link);
         $this->assertFalse($link->isBroken());
 
@@ -147,8 +147,7 @@ class LinkTest extends TestCase
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('Expected value to contain a url property');
         WebLink::linkFactory(
-            \json_decode('{
-            }'),
+            Json::decodeObject('{}'),
             new FakeLinkResolver()
         );
     }

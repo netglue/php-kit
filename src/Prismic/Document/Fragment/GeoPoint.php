@@ -23,19 +23,22 @@ class GeoPoint implements FragmentInterface, JsonSerializable
         $this->longitude = $lng;
     }
 
-    public static function factory($value) : self
+    public static function factory(object $value) : self
     {
         if (isset($value->value)) {
             $value = $value->value;
         }
+
         $latitude = isset($value->latitude) ? (float) $value->latitude : null;
         $longitude = isset($value->longitude) ? (float) $value->longitude : null;
+
         if (! is_float($longitude) || ! is_float($latitude)) {
             throw new InvalidArgumentException(sprintf(
                 'Expected an object containing latitude and longitude values, received: %s',
                 json_encode($value)
             ));
         }
+
         return new static($latitude, $longitude);
     }
 
@@ -63,6 +66,7 @@ class GeoPoint implements FragmentInterface, JsonSerializable
         return sprintf('%f, %f', $this->latitude, $this->longitude);
     }
 
+    /** @return float[] */
     public function jsonSerialize() : array
     {
         return [

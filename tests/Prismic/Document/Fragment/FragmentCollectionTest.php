@@ -12,13 +12,6 @@ use Prismic\Test\TestCase;
 
 class FragmentCollectionTest extends TestCase
 {
-    public function testExceptionThrownWhenFactoryReceivesNonObject() : void
-    {
-        $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('Expected an object as the collection value');
-        FragmentCollection::factory([], new FakeLinkResolver());
-    }
-
     public function testExceptionThrownByFactoryForUnDeterminableType() : void
     {
         $this->expectException(UnexpectedValueException::class);

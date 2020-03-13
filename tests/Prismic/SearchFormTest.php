@@ -11,6 +11,7 @@ use Prismic\ApiData;
 use Prismic\Document\Hydrator;
 use Prismic\DocumentInterface;
 use Prismic\Exception\InvalidArgumentException;
+use Prismic\Exception\JsonError;
 use Prismic\Exception\RequestFailureException;
 use Prismic\Exception\RuntimeException;
 use Prismic\Form;
@@ -490,8 +491,8 @@ class SearchFormTest extends TestCase
         $this->cache->getItem(Argument::type('string'))->willReturn($item->reveal());
         $this->cache->save()->shouldNotBeCalled();
         $form = $this->getSearchForm();
-        $this->expectException(RuntimeException::class);
-        $this->expectExceptionMessage('Unable to decode json response');
+        $this->expectException(JsonError::class);
+        $this->expectExceptionMessage('Failed to decode JSON payload');
         $form->submit();
     }
 

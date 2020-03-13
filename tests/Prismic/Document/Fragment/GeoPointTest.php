@@ -6,6 +6,7 @@ namespace Prismic\Test\Document\Fragment;
 use Prismic\Document\Fragment\FragmentCollection;
 use Prismic\Document\Fragment\GeoPoint;
 use Prismic\Exception\InvalidArgumentException;
+use Prismic\Json;
 use Prismic\Test\FakeLinkResolver;
 use Prismic\Test\TestCase;
 
@@ -14,7 +15,7 @@ class GeoPointTest extends TestCase
     public function testFactoryThrowsExceptionForInvalidObject() : void
     {
         $this->expectException(InvalidArgumentException::class);
-        GeoPoint::factory('foo', new FakeLinkResolver());
+        GeoPoint::factory(Json::decodeObject('{}'), new FakeLinkResolver());
     }
 
     public function testValidGeoPointSpecs() : void

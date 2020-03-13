@@ -13,7 +13,6 @@ class HydratorTest extends TestCase
 {
     public function testExceptionThrownMappingTypeWhenClassDoesNotImplementCorrectInterface() : void
     {
-        /** @var Api $api */
         $api = $this->prophesize(Api::class)->reveal();
         $hydrator = new Hydrator($api, [], DocumentInterface::class);
 

@@ -5,12 +5,16 @@ namespace Prismic\Document\Fragment;
 
 use Prismic\Exception\InvalidArgumentException;
 use Prismic\LinkResolver;
+use function array_key_exists;
+use function json_encode;
+use function sprintf;
+use const JSON_THROW_ON_ERROR;
 
 class TextElement implements FragmentInterface
 {
-
     use HtmlHelperTrait;
 
+    /** @var string[] */
     private $tagMap = [
         'heading1' => 'h1',
         'heading2' => 'h2',
@@ -24,47 +28,41 @@ class TextElement implements FragmentInterface
         'list-item' => 'li',
     ];
 
+    /** @var LinkResolver */
     private $linkResolver;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     private $type;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     private $text;
 
-    /**
-     * @var array
-     */
+    /** @var mixed[] */
     private $spans;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     private $label;
 
     private function __construct()
     {
     }
 
-    public static function factory($value, LinkResolver $linkResolver) : self
+    public static function factory(object $value, LinkResolver $linkResolver) : self
     {
-        $element = new static;
-        $type = isset($value->type) ? $value->type : null;
-        if (! $type || ! \array_key_exists($type, $element->tagMap)) {
+        $element = new static();
+        $type = $value->type ?? null;
+        if (! $type || ! array_key_exists($type, $element->tagMap)) {
             throw new InvalidArgumentException(sprintf(
                 'No Text Element type can be determined from the payload %s',
-                \json_encode($value)
+                json_encode($value, JSON_THROW_ON_ERROR, 512)
             ));
         }
+
         $element->linkResolver = $linkResolver;
-        $element->text = isset($value->text) ? $value->text : null;
+        $element->text = $value->text ?? null;
         $element->type = $type;
-        $element->spans = isset($value->spans) ? $value->spans : [];
-        $element->label = isset($value->label) ? $value->label : null;
+        $element->spans = $value->spans ?? [];
+        $element->label = $value->label ?? null;
 
         return $element;
     }
@@ -76,9 +74,10 @@ class TextElement implements FragmentInterface
 
     public function withoutFormatting() :? string
     {
-        if (null === $this->text) {
+        if ($this->text === null) {
             return null;
         }
+
         return sprintf(
             '%s%s%s',
             $this->openTag(),
@@ -89,10 +88,11 @@ class TextElement implements FragmentInterface
 
     public function asHtml() : ?string
     {
-        if (null === $this->text) {
+        if ($this->text === null) {
             return null;
         }
-        return \sprintf(
+
+        return sprintf(
             '%s%s%s',
             $this->openTag(),
             $this->insertSpans($this->text, $this->spans, $this->linkResolver),
@@ -110,7 +110,8 @@ class TextElement implements FragmentInterface
         $attributes = $this->label
             ? $this->htmlAttributes(['class' => $this->label])
             : '';
-        return \sprintf(
+
+        return sprintf(
             '<%s%s>',
             $this->getTag(),
             $attributes
@@ -119,6 +120,6 @@ class TextElement implements FragmentInterface
 
     public function closeTag() :? string
     {
-        return \sprintf('</%s>', $this->getTag());
+        return sprintf('</%s>', $this->getTag());
     }
 }
