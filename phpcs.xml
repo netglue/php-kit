@@ -14,7 +14,8 @@
     <file>tests</file>
 
     <rule ref="PHPCompatibility"/>
-    <config name="testVersion" value="7.3-7.4"/>
+
+    <config name="testVersion" value="7.3-"/>
 
     <!-- inherit rules from: -->
     <rule ref="PSR2"/>
