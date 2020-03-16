@@ -4,9 +4,7 @@ declare(strict_types=1);
 namespace Prismic;
 
 use BadMethodCallException;
-use Countable;
 use Prismic\Exception\InvalidArgumentException;
-use function count;
 use function sprintf;
 
 class SearchFormCollection

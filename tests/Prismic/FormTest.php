@@ -3,9 +3,9 @@ declare(strict_types=1);
 
 namespace Prismic\Test;
 
+use PHPUnit\Framework\TestCase;
 use Prismic\FieldForm;
 use Prismic\Form;
-use PHPUnit\Framework\TestCase;
 use function array_map;
 
 class FormTest extends TestCase
@@ -77,6 +77,7 @@ class FormTest extends TestCase
         JSON);
     }
 
+    /** @return string[][] */
     public function fieldNameProvider() : iterable
     {
         $fields = ['ref', 'q', 'lang', 'page', 'pageSize', 'after', 'fetch', 'fetchLinks', 'orderings', 'referer', 'access_token'];
