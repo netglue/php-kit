@@ -53,7 +53,7 @@ class SearchFormTest extends TestCase
     protected function setUp() : void
     {
         $this->apiData = ApiData::withJsonString($this->getJsonFixture('data.json'));
-        $this->form = Form::withJsonObject($this->apiData->getForms()['blogs']);
+        $this->form = $this->apiData->getForms()['blogs'];
         $this->httpClient = $this->prophesize(GuzzleClient::class);
         $this->cache = $this->prophesize(CacheItemPoolInterface::class);
     }
@@ -418,7 +418,7 @@ class SearchFormTest extends TestCase
             "action": "https://whatever/api/v2/documents/search",
             "fields": {}
         }';
-        $form = Form::withJsonString($formJson);
+        $form = Form::withJsonString('foo', $formJson);
         $searchForm = new SearchForm(
             $this->getApiWithDefaultData(),
             $form,

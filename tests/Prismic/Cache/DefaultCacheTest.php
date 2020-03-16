@@ -15,13 +15,13 @@ class DefaultCacheTest extends TestCase
     public function testApcUsedAsDefaultCacheIfAvailable() : void
     {
         if (! extension_loaded('apc')) {
-            $this->markTestSkipped('APC extension is not loaded');
+            $this->fail('APC extension is not loaded');
 
             return;
         }
 
         if (! ini_get('apc.enable_cli')) {
-            $this->markTestSkipped('APC is disabled on the CLI');
+            $this->fail('APC is disabled on the CLI');
         }
 
         $cache = DefaultCache::factory();

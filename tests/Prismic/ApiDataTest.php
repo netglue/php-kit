@@ -6,9 +6,9 @@ namespace Prismic\Test;
 use Prismic\ApiData;
 use Prismic\Exception\JsonError;
 use Prismic\Experiments;
+use Prismic\Form;
 use Prismic\Ref;
 use Prismic\Value\Language;
-use stdClass;
 use function array_filter;
 use function assert;
 
@@ -47,7 +47,7 @@ class ApiDataTest extends TestCase
         $this->assertContainsOnly('string', $this->data->getTags());
 
         $this->assertCount(2, $this->data->getForms());
-        $this->assertContainsOnlyInstancesOf(stdClass::class, $this->data->getForms());
+        $this->assertContainsOnlyInstancesOf(Form::class, $this->data->getForms());
 
         $this->assertInstanceOf(Experiments::class, $this->data->getExperiments());
 

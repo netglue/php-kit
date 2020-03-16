@@ -6,6 +6,13 @@ namespace Prismic;
 class Form
 {
     /**
+     * The key used to identify the form
+     *
+     * @var string
+     */
+    private $key;
+
+    /**
      * Form Name/Label
      *
      * @var string|null
@@ -56,6 +63,7 @@ class Form
      * @param FieldForm[] $fields  the list of FieldForm objects that can be used
      */
     private function __construct(
+        string $key,
         ?string $name,
         string $method,
         ?string $rel,
@@ -63,6 +71,7 @@ class Form
         string $action,
         array $fields
     ) {
+        $this->key     = $key;
         $this->name    = $name;
         $this->method  = $method;
         $this->rel     = $rel;
@@ -78,25 +87,26 @@ class Form
      */
     public function defaultData() : array
     {
-        $dft = [];
+        $defaults = [];
         foreach ($this->fields as $key => $field) {
             $default = $field->getDefaultValue();
             if (! $default) {
                 continue;
             }
 
-            $dft[$key] = $field->isMultiple() ? [$default] : $default;
+            $defaults[$key] = $field->isMultiple() ? [$default] : $default;
         }
 
-        return $dft;
+        return $defaults;
     }
 
     /**
      * Return a new instance from a JSON string
      */
-    public static function withJsonString(string $json) : self
+    public static function withJsonString(string $key, string $json) : self
     {
         return self::withJsonObject(
+            $key,
             Json::decodeObject($json)
         );
     }
@@ -104,7 +114,7 @@ class Form
     /**
      * Return a new instance from unserialized JSON
      */
-    public static function withJsonObject(object $json) : self
+    public static function withJsonObject(string $key, object $json) : self
     {
         $fields = [];
         foreach ($json->fields as $name => $field) {
@@ -114,13 +124,19 @@ class Form
         }
 
         return new self(
-            $json->name ?? null,
+            $key,
+            $json->name ?? $key,
             $json->method,
             $json->rel ?? null,
             $json->enctype,
             $json->action,
             $fields
         );
+    }
+
+    public function getKey() : string
+    {
+        return $this->key;
     }
 
     /**

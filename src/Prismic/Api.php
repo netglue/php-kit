@@ -142,7 +142,7 @@ class Api
         try {
             return $this->cache->getItem($key);
         } catch (CacheException $cacheException) {
-            throw new Exception\RuntimeException(
+            throw new RuntimeException(
                 'A cache exception occurred whilst retrieving cached api data',
                 0,
                 $cacheException
@@ -158,7 +158,7 @@ class Api
 
             return ApiData::withJsonString((string) $response->getBody());
         } catch (GuzzleException $guzzleException) {
-            throw Exception\RequestFailureException::fromGuzzleException($guzzleException);
+            throw RequestFailureException::fromGuzzleException($guzzleException);
         }
     }
 
@@ -297,10 +297,8 @@ class Api
     {
         if (! $this->forms) {
             $forms = [];
-            foreach ($this->getData()->getForms() as $name => $jsonObject) {
-                $formObject = Form::withJsonObject($jsonObject);
-                $data = $formObject->defaultData();
-                $forms[$name] = new SearchForm($this, $formObject, $data);
+            foreach ($this->getData()->getForms() as $form) {
+                $forms[$form->getKey()] = new SearchForm($this, $form, $form->defaultData());
             }
 
             $this->forms = new SearchFormCollection($forms);
@@ -510,7 +508,7 @@ class Api
      * @param  string|string[]|Predicate[]|Predicate $q       the query, as a string, predicate or array of predicates
      * @param  mixed[]                               $options query options: pageSize, orderings, etc.
      *
-     * @throws Exception\ExceptionInterface if parameters are invalid.
+     * @throws ExceptionInterface if parameters are invalid.
      */
     public function query($q, array $options = []) : Response
     {

@@ -4,7 +4,9 @@ declare(strict_types=1);
 namespace Prismic;
 
 use BadMethodCallException;
+use Countable;
 use Prismic\Exception\InvalidArgumentException;
+use function count;
 use function sprintf;
 
 class SearchFormCollection
@@ -15,8 +17,8 @@ class SearchFormCollection
     /** @param SearchForm[] $forms */
     public function __construct(array $forms)
     {
-        foreach ($forms as $name => $form) {
-            $this->addForm($name, $form);
+        foreach ($forms as $form) {
+            $this->addForm($form->getKey(), $form);
         }
     }
 

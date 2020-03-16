@@ -42,9 +42,14 @@ class SearchForm
      */
     public function __construct(Api $api, Form $form, array $data)
     {
-        $this->api    = $api;
-        $this->form   = $form;
-        $this->data   = $data;
+        $this->api  = $api;
+        $this->form = $form;
+        $this->data = $data;
+    }
+
+    public function getKey() : string
+    {
+        return $this->form->getKey();
     }
 
     /**

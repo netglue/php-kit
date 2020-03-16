@@ -6,6 +6,7 @@ namespace Prismic;
 use Prismic\Value\Language;
 use stdClass;
 use function array_map;
+use function array_walk;
 
 class ApiData
 {
@@ -21,7 +22,7 @@ class ApiData
     /** @var string[] */
     private $tags;
 
-    /** @var stdClass[] */
+    /** @var Form[] */
     private $forms;
 
     /** @var string */
@@ -92,6 +93,12 @@ class ApiData
             }, $json->languages)
             : [];
 
+        $formData = isset($json->forms) ? (array) $json->forms : [];
+        $forms = [];
+        array_walk($formData, static function (object $form, string $key) use (&$forms) : void {
+            $forms[$key] = Form::withJsonObject($key, $form);
+        });
+
         return new static(
             array_map(
                 static function ($ref) {
@@ -102,7 +109,7 @@ class ApiData
             (array) $json->bookmarks,
             (array) $json->types,
             $json->tags,
-            (array) $json->forms,
+            $forms,
             $experiments,
             $languages,
             $json->oauth_initiate,
@@ -134,7 +141,7 @@ class ApiData
         return $this->tags;
     }
 
-    /** @return stdClass[] */
+    /** @return Form[] */
     public function getForms() : array
     {
         return $this->forms;

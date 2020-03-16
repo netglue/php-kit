@@ -272,12 +272,18 @@ class ApiTest extends TestCase
         $this->assertNull($api->bookmark('not_known_bookmark_name'));
     }
 
-    public function testFormsReturnsOnlyFormInstances() : void
+    public function testFormsCanBeAccessedWithMagicGetter() : void
     {
         $api = $this->getApiWithDefaultData();
         $forms = $api->forms();
         $this->assertTrue(isset($forms->everything));
         $this->assertInstanceOf(SearchForm::class, $forms->everything);
+    }
+
+    public function testFormsCanBeRetrievedByNameFromTheCollection() : void
+    {
+        $api = $this->getApiWithDefaultData();
+        $this->assertInstanceOf(SearchForm::class, $api->forms()->getForm('blogs'));
     }
 
     public function testFormsIsASearchFormCollection() : void
