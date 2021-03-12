@@ -13,6 +13,7 @@ use function gettype;
 use function implode;
 use function is_array;
 use function is_float;
+use function is_int;
 use function is_object;
 use function is_string;
 use function json_encode;
@@ -115,7 +116,7 @@ class FragmentCollection implements CompositeFragmentInterface
             $this->fragments[$key] = Boolean::factory($value);
             return;
         }
-        if (is_float($value)) {
+        if (is_float($value) || is_int($value)) {
             $this->fragments[$key] = Number::factory($value);
             return;
         }
