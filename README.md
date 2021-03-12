@@ -1,7 +1,15 @@
 # Unofficial PHP development kit for prismic.io
-[![alt text](https://travis-ci.org/netglue/prismic-php-kit.png?branch=master "Travis build")](https://travis-ci.org/netglue/prismic-php-kit)
-[![Maintainability](https://api.codeclimate.com/v1/badges/46e65939eeace01a9605/maintainability)](https://codeclimate.com/github/netglue/prismic-php-kit/maintainability)
-[![Test Coverage](https://api.codeclimate.com/v1/badges/46e65939eeace01a9605/test_coverage)](https://codeclimate.com/github/netglue/prismic-php-kit/test_coverage)
+
+
+## Abandoned
+
+This library is effectively abandoned in favour of a new client I've put together at [netglue/prismic-client](https://github.com/netglue/prismic-client).
+
+It still has similarities but is mostly a re-write that takes advantage of the http related PSRs and seeks to simplify things and further improve type safety.
+
+If you're starting a new project, want to use a client that will stick around for a while and don't want to use the outdated official client, then choose that…
+
+If you are already using this, like I am on some older projects, then feel free to contribute patches if need be.
 
 ## Introduction
 
@@ -118,12 +126,12 @@ Webhooks are sent to your app/website when individual documents or releases are 
 | Experiment Created | Yes | `{ "experiments" : { "addition" : [ { "id" : "Some ID", "name" : "Testing Experiment", "variations" : [ { "id" : "Some ID", "ref" : "Some Ref", "label" : "Base" } ] } ] } }` |
 | Documents added to Experiment Before Starting It | Yes | `{ "experiments" : { "update" : [ { "id" : "Some ID", "name" : "Testing Experiment", "variations" : [ { "id" : "Some ID", "ref" : "Some Ref", "label" : "Base" }, { "id" : "Some Id", "ref" : "Some Ref", "label" : "Variation 1" } ] } ] } }` |
 | Start Experiment | No _(FFS)_ | |
-| Experiment Stopped | Yes | `{ experiments" : { "deletion" : [ { "id" : "Some ID", "name" : "Experiment Name", "variations" : [ { "id" : "Some ID", "ref" : "Some Ref", "label" : "Base" }, { "id" : "Some ID", "ref" : "Some Ref", "label" : "First Variation" } ] } ] } }` 
+| Experiment Stopped | Yes | `{ experiments" : { "deletion" : [ { "id" : "Some ID", "name" : "Experiment Name", "variations" : [ { "id" : "Some ID", "ref" : "Some Ref", "label" : "Base" }, { "id" : "Some ID", "ref" : "Some Ref", "label" : "First Variation" } ] } ] } }`
 | Experiment Deleted | No | |
 
 The [docs here](https://user-guides.prismic.io/webhooks/webhooks) say that webhooks are dispatched when tags are added, changed and removed. This is not accurate. At the time of writing, you cannot edit or delete tags. Any new tags that are created as part of working with documents will be posted in the next payload but only if something else occurs that triggers a webhook.
 
-The only way that you can determine whether a release or a document has been published is the presence of the `masterRef` property in the body of the webhook payload. 
+The only way that you can determine whether a release or a document has been published is the presence of the `masterRef` property in the body of the webhook payload.
 
 ## Built-In Document Explorer
 
