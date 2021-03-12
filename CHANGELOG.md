@@ -2,6 +2,29 @@
 
 All notable changes to this project will be documented in this file, in reverse chronological order by release.
 
+## 4.3.1 - 2021-03-12
+
+### Added
+
+- Nothing
+
+### Changed
+
+- Nothing.
+
+### Deprecated
+
+- Nothing.
+
+### Removed
+
+- Nothing
+
+### Fixed
+
+- [#19](https://github.com/netglue/prismic-php-kit/pull/19) Fixes a change in the payload receive from the API - previously, number fragments were always floats. Now they might be integers.
+
+
 ## 4.3.0 - 2020-03-12
 
 ### Added
